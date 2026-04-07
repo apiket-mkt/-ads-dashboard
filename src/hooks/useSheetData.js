@@ -1,13 +1,26 @@
 import { useState, useEffect } from 'react';
 import Papa from 'papaparse';
-import { parseRows } from '../utils/parseData';
+import { parseRows, parseConversionRows } from '../utils/parseData';
 
 const SHEET_ID = '1UmI0zdAUI7UJGrOHhA9x3wPZeBjBsuyeypYO3wQItnc';
-const SHEET_NAME = 'DB';
-const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${SHEET_NAME}`;
+const makeUrl = (sheet) =>
+  `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheet)}`;
+
+const fetchSheet = async (sheetName, parser) => {
+  const res = await fetch(makeUrl(sheetName));
+  if (!res.ok) throw new Error(`HTTP ${res.status} (${sheetName} 시트)`);
+  const text = await res.text();
+  const result = Papa.parse(text, {
+    header: true,
+    skipEmptyLines: true,
+    trimHeaders: true,
+  });
+  return parser(result.data);
+};
 
 export const useSheetData = () => {
   const [rows, setRows] = useState([]);
+  const [convRows, setConvRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
@@ -16,16 +29,12 @@ export const useSheetData = () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch(CSV_URL);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const text = await res.text();
-      const result = Papa.parse(text, {
-        header: true,
-        skipEmptyLines: true,
-        trimHeaders: true,
-      });
-      const parsed = parseRows(result.data);
-      setRows(parsed);
+      const [dbRows, conversionRows] = await Promise.all([
+        fetchSheet('DB', parseRows),
+        fetchSheet('전환', parseConversionRows),
+      ]);
+      setRows(dbRows);
+      setConvRows(conversionRows);
       setLastUpdated(new Date());
     } catch (err) {
       setError(err.message);
@@ -38,5 +47,5 @@ export const useSheetData = () => {
     fetchData();
   }, []);
 
-  return { rows, loading, error, refetch: fetchData, lastUpdated };
+  return { rows, convRows, loading, error, refetch: fetchData, lastUpdated };
 };

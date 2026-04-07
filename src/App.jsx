@@ -3,12 +3,14 @@ import { useSheetData } from './hooks/useSheetData';
 import { getAvailableMonths } from './utils/parseData';
 import OverallView from './components/OverallView';
 import BrandView from './components/BrandView';
+import ChannelView from './components/ChannelView';
 import SettingsPage from './components/SettingsPage';
 import './App.css';
 
 const TABS = [
   { id: 'overall', label: '전체 현황' },
   { id: 'brand', label: '브랜드별' },
+  { id: 'channel', label: '매체별' },
   { id: 'settings', label: '⚙ 설정' },
 ];
 
@@ -23,11 +25,11 @@ function loadTargets() {
 }
 
 export default function App() {
-  const { rows, loading, error, refetch, lastUpdated } = useSheetData();
+  const { rows, convRows, loading, error, refetch, lastUpdated } = useSheetData();
   const [activeTab, setActiveTab] = useState('overall');
   const [targets, setTargets] = useState(loadTargets);
 
-  const months = getAvailableMonths(rows);
+  const months = getAvailableMonths(rows, convRows);
   const [selectedMonth, setSelectedMonth] = useState(null);
 
   useEffect(() => {
@@ -120,13 +122,21 @@ export default function App() {
         {selectedMonth === null ? (
           <div className="empty-state">데이터가 없습니다.</div>
         ) : activeTab === 'overall' ? (
-          <OverallView rows={rows} month={selectedMonth} prevMonth={prevMonth} />
+          <OverallView rows={rows} convRows={convRows} month={selectedMonth} prevMonth={prevMonth} />
         ) : activeTab === 'brand' ? (
           <BrandView
             rows={rows}
+            convRows={convRows}
             month={selectedMonth}
             prevMonth={prevMonth}
             targets={targets}
+          />
+        ) : activeTab === 'channel' ? (
+          <ChannelView
+            rows={rows}
+            convRows={convRows}
+            month={selectedMonth}
+            prevMonth={prevMonth}
           />
         ) : (
           <SettingsPage rows={rows} targets={targets} onSave={handleSaveTargets} />

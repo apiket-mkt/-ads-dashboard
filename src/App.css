@@ -238,6 +238,35 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   line-height: 1.7;
 }
 
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.section-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--primary-light);
+  color: var(--primary);
+  white-space: nowrap;
+}
+
+.section-badge-shopping {
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+
+.section-shopping {
+  border-left: 3px solid var(--warning);
+  padding-left: 12px;
+}
+
 /* ==========================================
    Card
 ========================================== */

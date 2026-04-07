@@ -3,28 +3,41 @@ import KpiCard from './KpiCard';
 import TrendChart from './TrendChart';
 import DataTable from './DataTable';
 import {
-  aggregateByBrand,
-  aggregateByBrandWeek,
-  getBrands,
+  getAllBrands,
+  aggregateGamaengByBrand,
+  aggregateGamaengByBrandWeek,
+  aggregateGamaengMonthly,
+  aggregateByBrandChannel,
+  aggregateShoppingByBrand,
 } from '../utils/parseData';
 import { formatKRW, formatNumber, formatChangeRate } from '../utils/formatters';
 
-export default function BrandView({ rows, month, prevMonth, targets }) {
-  const brands = getBrands(rows, month);
+export default function BrandView({ rows, convRows, month, prevMonth, targets }) {
+  const brands = getAllBrands(rows, convRows, month);
   const [selectedBrand, setSelectedBrand] = useState(brands[0] || '');
 
-  const brandMonthly = aggregateByBrand(rows, month);
-  const prevBrandMonthly = prevMonth ? aggregateByBrand(rows, prevMonth) : [];
+  const brandMonthly = aggregateGamaengByBrand(rows, convRows, month);
+  const prevBrandMonthly = prevMonth ? aggregateGamaengByBrand(rows, convRows, prevMonth) : [];
 
   const targetMap = targets || {};
 
   const brandWeekly = selectedBrand
-    ? aggregateByBrandWeek(rows, month, selectedBrand)
+    ? aggregateGamaengByBrandWeek(rows, convRows, month, selectedBrand)
     : [];
   const prevBrandWeekly =
     prevMonth && selectedBrand
-      ? aggregateByBrandWeek(rows, prevMonth, selectedBrand)
+      ? aggregateGamaengByBrandWeek(rows, convRows, prevMonth, selectedBrand)
       : [];
+
+  // 선택 브랜드 매체별 비교
+  const channelData = selectedBrand
+    ? aggregateByBrandChannel(rows, convRows, month, selectedBrand)
+    : [];
+
+  // 선택 브랜드 쇼핑광고
+  const shopping = selectedBrand
+    ? aggregateShoppingByBrand(convRows, month, selectedBrand)
+    : { hasData: false };
 
   const selectedBrandMonthly = brandMonthly.find((b) => b.브랜드 === selectedBrand);
   const prevSelectedBrandMonthly = prevBrandMonthly.find((b) => b.브랜드 === selectedBrand);
@@ -63,10 +76,10 @@ export default function BrandView({ rows, month, prevMonth, targets }) {
 
       {selectedBrand && selectedBrandMonthly && (
         <>
-          {/* 선택 브랜드 KPI */}
+          {/* 선택 브랜드 가맹문의 KPI */}
           <section className="section">
             <div className="section-title-row">
-              <h2 className="section-title">{selectedBrand} — {month}월 결산</h2>
+              <h2 className="section-title">{selectedBrand} — {month}월 가맹문의 결산</h2>
               {target && (
                 <span className={`badge ${achieved ? 'badge-success' : 'badge-fail'}`}>
                   목표단가 {formatKRW(target)} {achieved ? '✓ 달성' : '✗ 미달성'}
@@ -88,7 +101,7 @@ export default function BrandView({ rows, month, prevMonth, targets }) {
                 changeLabel="전월비"
               />
               <KpiCard
-                label="DB 단가"
+                label="통합 DB 단가"
                 value={formatKRW(selectedBrandMonthly.DB단가)}
                 change={unitChange}
                 changeLabel="전월비"
@@ -98,11 +111,26 @@ export default function BrandView({ rows, month, prevMonth, targets }) {
                 <KpiCard
                   label="목표 DB 단가"
                   value={formatKRW(target)}
-                  sub={achieved ? '🎯 목표 달성' : '⚠ 목표 미달성'}
+                  sub={achieved ? '목표 달성' : '목표 미달성'}
                 />
               )}
             </div>
           </section>
+
+          {/* 매체별 DB단가 비교 */}
+          {channelData.length > 1 && (
+            <section className="section">
+              <h2 className="section-title">매체별 DB단가 비교</h2>
+              <div className="card">
+                <TrendChart data={channelData} xKey="광고채널" />
+              </div>
+              <DataTable
+                data={channelData}
+                labelKey="광고채널"
+                labelHeader="매체"
+              />
+            </section>
+          )}
 
           {/* 선택 브랜드 주차별 추이 */}
           <section className="section">
@@ -121,10 +149,25 @@ export default function BrandView({ rows, month, prevMonth, targets }) {
               showChange={!!prevMonth}
             />
           </section>
+
+          {/* 쇼핑광고 (데이터 있을 때만) */}
+          {shopping.hasData && (
+            <section className="section section-shopping">
+              <div className="section-header">
+                <h2 className="section-title">{selectedBrand} — 쇼핑광고</h2>
+                <span className="section-badge section-badge-shopping">제품 판매</span>
+              </div>
+              <div className="kpi-grid">
+                <KpiCard label="쇼핑 광고비" value={formatKRW(shopping.광고비)} />
+                <KpiCard label="전환 건수" value={`${formatNumber(shopping.전환갯수)}건`} />
+                <KpiCard label="전환 단가" value={formatKRW(shopping.전환단가)} highlight="lower" />
+              </div>
+            </section>
+          )}
         </>
       )}
 
-      {/* 브랜드별 월 결산 비교 */}
+      {/* 전체 브랜드 월 결산 비교 */}
       <section className="section">
         <h2 className="section-title">브랜드별 월 결산 비교</h2>
         <div className="card">

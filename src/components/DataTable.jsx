@@ -1,10 +1,13 @@
 import { formatKRW, formatNumber, formatPercent, formatChangeRate } from '../utils/formatters';
 
-export default function DataTable({ data, previousData, showChange, targetMap }) {
+// labelKey: 첫 번째 컬럼에 사용할 데이터 필드명 (기본: '브랜드' 또는 'label')
+// labelHeader: 첫 번째 컬럼 헤더 텍스트 (기본: '브랜드' 또는 '주차')
+export default function DataTable({ data, previousData, showChange, targetMap, labelKey, labelHeader }) {
   if (!data || data.length === 0) return <div className="empty-state">데이터가 없습니다.</div>;
 
-  const hasBrand = 'brand' in (data[0] ?? {}) || '브랜드' in (data[0] ?? {});
-  const keyField = hasBrand ? '브랜드' : 'label';
+  const hasBrand = !labelKey && ('brand' in (data[0] ?? {}) || '브랜드' in (data[0] ?? {}));
+  const keyField = labelKey || (hasBrand ? '브랜드' : 'label');
+  const headerLabel = labelHeader || (hasBrand ? '브랜드' : '주차');
 
   const getPrev = (row) => {
     if (!previousData) return null;
@@ -29,7 +32,7 @@ export default function DataTable({ data, previousData, showChange, targetMap })
       <table className="data-table">
         <thead>
           <tr>
-            <th>{hasBrand ? '브랜드' : '주차'}</th>
+            <th>{headerLabel}</th>
             <th>광고비</th>
             {showChange && <th className="th-change">전월비</th>}
             <th>DB 건수</th>

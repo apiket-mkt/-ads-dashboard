@@ -30,19 +30,22 @@ const CustomTooltip = ({ active, payload, label }) => {
   );
 };
 
-export default function TrendChart({ data, showBrand }) {
+// xKey: X축에 사용할 데이터 필드명 (기본: showBrand ? '브랜드' : 'label')
+export default function TrendChart({ data, showBrand, xKey }) {
   const tickFormatter = (v) => {
     if (v >= 1000000) return `${(v / 1000000).toFixed(1)}M`;
     if (v >= 1000) return `${(v / 1000).toFixed(0)}K`;
     return v;
   };
 
+  const xAxisKey = xKey || (showBrand ? '브랜드' : 'label');
+
   return (
     <ResponsiveContainer width="100%" height={300}>
       <ComposedChart data={data} margin={{ top: 10, right: 30, left: 10, bottom: 5 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
         <XAxis
-          dataKey={showBrand ? '브랜드' : 'label'}
+          dataKey={xAxisKey}
           tick={{ fill: 'var(--text-secondary)', fontSize: 12 }}
           axisLine={{ stroke: 'var(--border)' }}
           tickLine={false}
