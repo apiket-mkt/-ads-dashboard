@@ -176,7 +176,10 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   display: flex;
   align-items: center;
   gap: 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
+.tab-nav-inner::-webkit-scrollbar { display: none; }
 
 .tab-btn {
   padding: 14px 20px;
@@ -186,6 +189,8 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
   transition: all .15s;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .tab-btn:hover { color: var(--primary); }
 .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
