@@ -24,7 +24,7 @@ export default function DataTable({ data, previousData, showChange, targetMap, l
     const diff = formatDiff(current[field], previous[field], type);
     return (
       <td className={`change-cell ${cls}`}>
-        <span>{rate >= 0 ? '▲' : '▼'} {Math.abs(rate).toFixed(1)}%</span>
+        {rate >= 0 ? '▲' : '▼'} {Math.abs(rate).toFixed(1)}%
         <span className="change-diff">({diff})</span>
       </td>
     );
