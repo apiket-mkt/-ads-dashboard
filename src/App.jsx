@@ -5,6 +5,7 @@ import OverallView from './components/OverallView';
 import BrandView from './components/BrandView';
 import ChannelView from './components/ChannelView';
 import SettingsPage from './components/SettingsPage';
+import GuideView from './components/GuideView';
 import './App.css';
 
 const TABS = [
@@ -12,6 +13,7 @@ const TABS = [
   { id: 'brand', label: '브랜드별' },
   { id: 'channel', label: '매체별' },
   { id: 'settings', label: '⚙ 설정' },
+  { id: 'guide', label: '? 이용 안내' },
 ];
 
 const TARGETS_KEY = 'ads_dashboard_targets';
@@ -138,8 +140,10 @@ export default function App() {
             month={selectedMonth}
             prevMonth={prevMonth}
           />
+        ) : activeTab === 'settings' ? (
+          <SettingsPage rows={rows} convRows={convRows} targets={targets} onSave={handleSaveTargets} />
         ) : (
-          <SettingsPage rows={rows} targets={targets} onSave={handleSaveTargets} />
+          <GuideView />
         )}
       </main>
     </div>
