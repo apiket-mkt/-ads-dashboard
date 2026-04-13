@@ -11,7 +11,7 @@ import {
   aggregateShoppingByBrand,
   aggregateShoppingByBrandWeek,
 } from '../utils/parseData';
-import { formatKRW, formatNumber, formatChangeRate } from '../utils/formatters';
+import { formatKRW, formatNumber, formatChangeRate, formatDiff } from '../utils/formatters';
 
 export default function BrandView({ rows, convRows, month, prevMonth, targets }) {
   const brands = getAllBrands(rows, convRows, month);
@@ -39,6 +39,16 @@ export default function BrandView({ rows, convRows, month, prevMonth, targets })
   const shopping = selectedBrand
     ? aggregateShoppingByBrand(convRows, month, selectedBrand)
     : { hasData: false };
+  const prevShopping = prevMonth && selectedBrand
+    ? aggregateShoppingByBrand(convRows, prevMonth, selectedBrand)
+    : null;
+
+  const shopSpendChange = prevShopping?.hasData ? formatChangeRate(shopping.광고비, prevShopping.광고비) : null;
+  const shopConvChange  = prevShopping?.hasData ? formatChangeRate(shopping.전환갯수, prevShopping.전환갯수) : null;
+  const shopUnitChange  = prevShopping?.hasData ? formatChangeRate(shopping.전환단가, prevShopping.전환단가) : null;
+  const shopSpendDiff   = prevShopping?.hasData ? formatDiff(shopping.광고비, prevShopping.광고비, 'krw') : null;
+  const shopConvDiff    = prevShopping?.hasData ? formatDiff(shopping.전환갯수, prevShopping.전환갯수, 'count') : null;
+  const shopUnitDiff    = prevShopping?.hasData ? formatDiff(shopping.전환단가, prevShopping.전환단가, 'krw') : null;
 
   const shoppingWeekly = shopping.hasData
     ? aggregateShoppingByBrandWeek(convRows, month, selectedBrand)
@@ -172,9 +182,9 @@ export default function BrandView({ rows, convRows, month, prevMonth, targets })
                   <span className="section-badge section-badge-shopping">제품 판매</span>
                 </div>
                 <div className="kpi-grid">
-                  <KpiCard label="쇼핑 광고비" value={formatKRW(shopping.광고비)} />
-                  <KpiCard label="전환 건수" value={`${formatNumber(shopping.전환갯수)}건`} />
-                  <KpiCard label="전환 단가" value={formatKRW(shopping.전환단가)} highlight="lower" />
+                  <KpiCard label="쇼핑 광고비" value={formatKRW(shopping.광고비)} change={shopSpendChange} changeDiff={shopSpendDiff} changeLabel="전월비" />
+                  <KpiCard label="전환 건수" value={`${formatNumber(shopping.전환갯수)}건`} change={shopConvChange} changeDiff={shopConvDiff} changeLabel="전월비" />
+                  <KpiCard label="전환 단가" value={formatKRW(shopping.전환단가)} change={shopUnitChange} changeDiff={shopUnitDiff} changeLabel="전월비" highlight="lower" />
                 </div>
               </section>
 
