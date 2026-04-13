@@ -19,6 +19,16 @@ export const formatChangeRate = (current, previous) => {
   return ((current - previous) / previous) * 100;
 };
 
+export const formatDiff = (current, previous, type = 'krw') => {
+  if (previous === null || previous === undefined) return null;
+  const diff = current - previous;
+  const sign = diff >= 0 ? '+' : '-';
+  const abs = Math.abs(diff);
+  if (type === 'krw') return `${sign}₩${Math.round(abs).toLocaleString('ko-KR')}`;
+  if (type === 'count') return `${sign}${Math.round(abs).toLocaleString('ko-KR')}건`;
+  return `${sign}${Math.round(abs).toLocaleString('ko-KR')}`;
+};
+
 export const formatPercent = (value) => {
   if (value === null || value === undefined) return '';
   const sign = value >= 0 ? '+' : '';

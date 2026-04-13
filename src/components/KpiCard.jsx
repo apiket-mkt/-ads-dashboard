@@ -1,8 +1,7 @@
-export default function KpiCard({ label, value, sub, change, changeLabel, highlight }) {
+export default function KpiCard({ label, value, sub, change, changeDiff, changeLabel, highlight }) {
   const isPositive = change > 0;
   const isNegative = change < 0;
 
-  // DB단가의 경우 낮을수록 좋으므로 change 방향 반전 가능하도록 invertChange prop 사용
   const changeColor = highlight === 'lower'
     ? (isNegative ? 'var(--success)' : isPositive ? 'var(--danger)' : 'var(--text-muted)')
     : (isPositive ? 'var(--success)' : isNegative ? 'var(--danger)' : 'var(--text-muted)');
@@ -15,6 +14,7 @@ export default function KpiCard({ label, value, sub, change, changeLabel, highli
       {change !== null && change !== undefined && !isNaN(change) && (
         <div className="kpi-change" style={{ color: changeColor }}>
           {change >= 0 ? '▲' : '▼'} {Math.abs(change).toFixed(1)}%
+          {changeDiff && <span className="kpi-change-diff"> ({changeDiff})</span>}
           {changeLabel && <span className="kpi-change-label"> {changeLabel}</span>}
         </div>
       )}

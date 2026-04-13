@@ -332,6 +332,11 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   color: var(--text-muted);
 }
 
+.kpi-change-diff {
+  font-weight: 400;
+  opacity: 0.85;
+}
+
 /* ==========================================
    Data Table
 ========================================== */
@@ -614,6 +619,79 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   text-align: center;
   color: var(--text-muted);
   font-size: 14px;
+}
+
+/* ==========================================
+   Guide View
+========================================== */
+.guide-intro {
+  padding: 20px 24px;
+  line-height: 1.8;
+  color: var(--text);
+}
+
+.guide-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.guide-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  line-height: 1.75;
+}
+
+.guide-item-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 8px;
+}
+
+.guide-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.guide-table th {
+  background: var(--bg);
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 2px solid var(--border-strong);
+}
+
+.guide-table td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.guide-table tr:last-child td {
+  border-bottom: none;
+}
+
+.guide-notice {
+  margin-top: 14px;
+  background: var(--primary-light);
+  border-left: 4px solid var(--primary);
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+  font-size: 13px;
+  line-height: 1.75;
+  color: var(--primary-dark);
+}
+
+@media (max-width: 768px) {
+  .guide-cards { grid-template-columns: 1fr; }
+  .guide-table { font-size: 12px; }
+  .guide-table th, .guide-table td { padding: 9px 10px; }
 }
 
 /* ==========================================

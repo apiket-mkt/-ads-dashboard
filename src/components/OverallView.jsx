@@ -6,7 +6,7 @@ import {
   aggregateGamaengByWeek,
   aggregateShoppingMonthly,
 } from '../utils/parseData';
-import { formatKRW, formatNumber, formatChangeRate } from '../utils/formatters';
+import { formatKRW, formatNumber, formatChangeRate, formatDiff } from '../utils/formatters';
 
 export default function OverallView({ rows, convRows, month, prevMonth }) {
   // 가맹문의 통합 (DB 시트 + 전환시트 DB타입)
@@ -23,6 +23,10 @@ export default function OverallView({ rows, convRows, month, prevMonth }) {
   const dbChange = prevMonthly ? formatChangeRate(monthly.DB갯수, prevMonthly.DB갯수) : null;
   const unitChange = prevMonthly ? formatChangeRate(monthly.DB단가, prevMonthly.DB단가) : null;
 
+  const spendDiff = prevMonthly ? formatDiff(monthly.광고비, prevMonthly.광고비, 'krw') : null;
+  const dbDiff = prevMonthly ? formatDiff(monthly.DB갯수, prevMonthly.DB갯수, 'count') : null;
+  const unitDiff = prevMonthly ? formatDiff(monthly.DB단가, prevMonthly.DB단가, 'krw') : null;
+
   const shopSpendChange = prevShopping?.hasData
     ? formatChangeRate(shopping.광고비, prevShopping.광고비)
     : null;
@@ -31,6 +35,16 @@ export default function OverallView({ rows, convRows, month, prevMonth }) {
     : null;
   const shopUnitChange = prevShopping?.hasData
     ? formatChangeRate(shopping.전환단가, prevShopping.전환단가)
+    : null;
+
+  const shopSpendDiff = prevShopping?.hasData
+    ? formatDiff(shopping.광고비, prevShopping.광고비, 'krw')
+    : null;
+  const shopConvDiff = prevShopping?.hasData
+    ? formatDiff(shopping.전환갯수, prevShopping.전환갯수, 'count')
+    : null;
+  const shopUnitDiff = prevShopping?.hasData
+    ? formatDiff(shopping.전환단가, prevShopping.전환단가, 'krw')
     : null;
 
   return (
@@ -46,18 +60,21 @@ export default function OverallView({ rows, convRows, month, prevMonth }) {
             label="총 광고비"
             value={formatKRW(monthly.광고비)}
             change={spendChange}
+            changeDiff={spendDiff}
             changeLabel="전월비"
           />
           <KpiCard
             label="총 DB 건수"
             value={`${formatNumber(monthly.DB갯수)}건`}
             change={dbChange}
+            changeDiff={dbDiff}
             changeLabel="전월비"
           />
           <KpiCard
             label="통합 DB 단가"
             value={formatKRW(monthly.DB단가)}
             change={unitChange}
+            changeDiff={unitDiff}
             changeLabel="전월비"
             highlight="lower"
           />
@@ -101,18 +118,21 @@ export default function OverallView({ rows, convRows, month, prevMonth }) {
               label="쇼핑 광고비"
               value={formatKRW(shopping.광고비)}
               change={shopSpendChange}
+              changeDiff={shopSpendDiff}
               changeLabel="전월비"
             />
             <KpiCard
               label="전환 건수"
               value={`${formatNumber(shopping.전환갯수)}건`}
               change={shopConvChange}
+              changeDiff={shopConvDiff}
               changeLabel="전월비"
             />
             <KpiCard
               label="전환 단가"
               value={formatKRW(shopping.전환단가)}
               change={shopUnitChange}
+              changeDiff={shopUnitDiff}
               changeLabel="전월비"
               highlight="lower"
             />
