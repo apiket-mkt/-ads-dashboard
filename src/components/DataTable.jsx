@@ -1,4 +1,4 @@
-import { formatKRW, formatNumber, formatPercent, formatChangeRate } from '../utils/formatters';
+import { formatKRW, formatNumber, formatPercent, formatChangeRate, formatDiff } from '../utils/formatters';
 
 // labelKey: 첫 번째 컬럼에 사용할 데이터 필드명 (기본: '브랜드' 또는 'label')
 // labelHeader: 첫 번째 컬럼 헤더 텍스트 (기본: '브랜드' 또는 '주차')
@@ -20,9 +20,12 @@ export default function DataTable({ data, previousData, showChange, targetMap, l
     if (rate === null) return <td className="td-muted">-</td>;
     const good = lowerIsBetter ? rate < 0 : rate > 0;
     const cls = rate === 0 ? 'change-neutral' : good ? 'change-good' : 'change-bad';
+    const type = field === 'DB갯수' ? 'count' : 'krw';
+    const diff = formatDiff(current[field], previous[field], type);
     return (
       <td className={`change-cell ${cls}`}>
-        {rate >= 0 ? '▲' : '▼'} {Math.abs(rate).toFixed(1)}%
+        <span>{rate >= 0 ? '▲' : '▼'} {Math.abs(rate).toFixed(1)}%</span>
+        <span className="change-diff">({diff})</span>
       </td>
     );
   };
