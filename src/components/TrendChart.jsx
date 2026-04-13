@@ -11,6 +11,8 @@ import {
 } from 'recharts';
 import { formatKRW } from '../utils/formatters';
 
+const COUNT_KEYS = ['DB갯수', '전환갯수'];
+
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
@@ -20,7 +22,7 @@ const CustomTooltip = ({ active, payload, label }) => {
         <div key={p.dataKey} className="chart-tooltip-row" style={{ color: p.color }}>
           <span>{p.name}:</span>
           <span>
-            {p.dataKey === 'DB갯수'
+            {COUNT_KEYS.includes(p.dataKey)
               ? `${p.value.toLocaleString()}건`
               : formatKRW(p.value)}
           </span>
@@ -31,7 +33,9 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 // xKey: X축에 사용할 데이터 필드명 (기본: showBrand ? '브랜드' : 'label')
-export default function TrendChart({ data, showBrand, xKey }) {
+// mode: 'gamaeng'(기본) | 'shopping'
+export default function TrendChart({ data, showBrand, xKey, mode }) {
+  const isShopping = mode === 'shopping';
   const tickFormatter = (v) => {
     if (v >= 1000000) return `${(v / 1000000).toFixed(1)}M`;
     if (v >= 1000) return `${(v / 1000).toFixed(0)}K`;
@@ -82,8 +86,8 @@ export default function TrendChart({ data, showBrand, xKey }) {
         />
         <Bar
           yAxisId="left"
-          dataKey="DB갯수"
-          name="DB 건수"
+          dataKey={isShopping ? '전환갯수' : 'DB갯수'}
+          name={isShopping ? '전환 건수' : 'DB 건수'}
           fill="var(--accent)"
           radius={[4, 4, 0, 0]}
           maxBarSize={48}
@@ -92,8 +96,8 @@ export default function TrendChart({ data, showBrand, xKey }) {
         <Line
           yAxisId="right"
           type="monotone"
-          dataKey="DB단가"
-          name="DB단가"
+          dataKey={isShopping ? '전환단가' : 'DB단가'}
+          name={isShopping ? '전환단가' : 'DB단가'}
           stroke="var(--warning)"
           strokeWidth={2.5}
           dot={{ fill: 'var(--warning)', r: 4, strokeWidth: 0 }}

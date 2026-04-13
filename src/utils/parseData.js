@@ -20,11 +20,11 @@ export const parseRows = (rawRows) => {
 // ─── 전환 시트 파싱 ──────────────────────────────────────────────────────────
 export const parseConversionRows = (rawRows) => {
   return rawRows
-    .filter((r) => r['월'] && r['주차'] && r['브랜드'])
+    .filter((r) => r['월'] && r['브랜드'])
     .map((r) => ({
       광고채널: r['광고채널']?.trim() || '',
       월: parseInt(r['월'], 10),
-      주차: parseInt(r['주차'], 10),
+      주차: parseInt(r['주차'], 10) || 0,
       세트명: r['세트명']?.trim() || '',
       브랜드: r['브랜드']?.trim() || '',
       광고비: parseKRW(r['광고비']),
@@ -32,7 +32,7 @@ export const parseConversionRows = (rawRows) => {
       전환갯수: parseInt(r['전환갯수'], 10) || 0,
       전환단가: parseKRW(r['전환단가']),
     }))
-    .filter((r) => !isNaN(r.월) && !isNaN(r.주차));
+    .filter((r) => !isNaN(r.월));
 };
 
 // ─── 공통 헬퍼 ───────────────────────────────────────────────────────────────
@@ -222,6 +222,25 @@ export const aggregateShoppingMonthly = (convRows, month) => {
     전환단가: calcUnitPrice(totalSpend, totalConv),
     hasData: filtered.length > 0,
   };
+};
+
+export const aggregateShoppingByBrandWeek = (convRows, month, brand) => {
+  const filtered = convRows.filter(
+    (r) => r.월 === month && r.브랜드 === brand && r.전환종류 === '쇼핑' && r.주차 > 0
+  );
+  const weeks = [...new Set(filtered.map((r) => r.주차))].sort((a, b) => a - b);
+  return weeks.map((week) => {
+    const weekRows = filtered.filter((r) => r.주차 === week);
+    const totalSpend = weekRows.reduce((s, r) => s + r.광고비, 0);
+    const totalConv = weekRows.reduce((s, r) => s + r.전환갯수, 0);
+    return {
+      주차: week,
+      label: `${week}주차`,
+      광고비: totalSpend,
+      전환갯수: totalConv,
+      전환단가: calcUnitPrice(totalSpend, totalConv),
+    };
+  });
 };
 
 export const aggregateShoppingByBrand = (convRows, month, brand) => {
